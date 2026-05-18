@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0b0f"/>
+      <stop offset="1" stop-color="#131319"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.15" cy="0.85" r="0.7">
+      <stop offset="0" stop-color="#7c5cff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- accent vertical bar -->
+  <rect x="80" y="100" width="3" height="430" fill="#7c5cff"/>
+
+  <!-- eyebrow -->
+  <text x="110" y="135"
+        font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+        font-size="22" letter-spacing="5" fill="#a1a1aa">
+    BACKEND DEVELOPER · SEOUL
+  </text>
+
+  <!-- name -->
+  <text x="110" y="245"
+        font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="98" font-weight="600" fill="#e6e6ea" letter-spacing="-2">
+    Jeongjin Kim
+  </text>
+
+  <!-- tagline line 1 -->
+  <text x="110" y="320"
+        font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="32" font-weight="400" fill="#a1a1aa">
+    Java &amp; Kotlin backend developer — async composition,
+  </text>
+  <text x="110" y="362"
+        font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="32" font-weight="400" fill="#a1a1aa">
+    multi-tenant systems, rigid upstream integrations.
+  </text>
+
+  <!-- stats strip -->
+  <g transform="translate(110, 430)">
+    <rect x="0" y="0" width="980" height="120" rx="10" fill="#131319" stroke="#232329" stroke-width="1"/>
+
+    <!-- stat 1 -->
+    <text x="50" y="55"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="14" fill="#71717a" letter-spacing="2">PROJECTS</text>
+    <text x="50" y="95"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="36" font-weight="500" fill="#e6e6ea">4</text>
+
+    <!-- stat 2 -->
+    <text x="240" y="55"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="14" fill="#71717a" letter-spacing="2">TENANTS</text>
+    <text x="240" y="95"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="36" font-weight="500" fill="#e6e6ea">6</text>
+
+    <!-- stat 3 -->
+    <text x="420" y="55"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="14" fill="#71717a" letter-spacing="2">PROCESSES</text>
+    <text x="420" y="95"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="36" font-weight="500" fill="#e6e6ea">~8,000</text>
+
+    <!-- stat 4 -->
+    <text x="640" y="55"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="14" fill="#71717a" letter-spacing="2">RUNNERS</text>
+    <text x="640" y="95"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="36" font-weight="500" fill="#e6e6ea">500+</text>
+
+    <!-- stat 5 -->
+    <text x="820" y="55"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="14" fill="#71717a" letter-spacing="2">ASYNC STAGES</text>
+    <text x="820" y="95"
+          font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+          font-size="36" font-weight="500" fill="#e6e6ea">22</text>
+  </g>
+
+  <!-- footer mark -->
+  <text x="80" y="595"
+        font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+        font-size="18" fill="#7c5cff">
+    &lt;jeongjin /&gt;
+  </text>
+  <text x="1120" y="595" text-anchor="end"
+        font-family="ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace"
+        font-size="18" fill="#71717a">
+    github.com/valorjj
+  </text>
+</svg>

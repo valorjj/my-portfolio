@@ -1,0 +1,130 @@
+.block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-code);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.lang {
+  color: var(--accent);
+}
+
+.caption {
+  color: var(--text-faint);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--text-xs);
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  transition: color var(--transition), border-color var(--transition),
+    background-color var(--transition);
+}
+
+.copy:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.copy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.copyDone {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.copyLabel {
+  display: inline-block;
+}
+
+.pre {
+  margin: 0;
+  padding: var(--space-4) 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  background: transparent !important;
+}
+
+.pre code {
+  font-family: inherit;
+  background: transparent;
+  padding: 0;
+  display: block;
+  min-width: max-content;
+}
+
+.line {
+  display: flex;
+  padding: 0 var(--space-4);
+}
+
+.lineNo {
+  flex-shrink: 0;
+  width: 28px;
+  margin-right: var(--space-4);
+  color: var(--text-faint);
+  opacity: 0.5;
+  user-select: none;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lineContent {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .pre {
+    font-size: var(--text-xs);
+  }
+
+  .lineNo {
+    width: 22px;
+    margin-right: var(--space-3);
+  }
+
+  .line {
+    padding: 0 var(--space-3);
+  }
+}

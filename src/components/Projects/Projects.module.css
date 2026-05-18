@@ -1,0 +1,11 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .list {
+    gap: var(--space-6);
+  }
+}

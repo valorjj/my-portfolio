@@ -1,0 +1,67 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 640px;
+}
+
+.paragraph {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  color: var(--text);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.paragraph code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  padding: 1px var(--space-1);
+  background-color: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.signature {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: var(--space-5);
+  background-color: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.signatureItem {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.signatureMark {
+  color: var(--accent);
+  flex-shrink: 0;
+  line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+  .paragraph {
+    font-size: var(--text-base);
+    line-height: 1.65;
+  }
+
+  .signature {
+    padding: var(--space-4);
+  }
+
+  .signatureItem {
+    font-size: var(--text-xs);
+  }
+}
