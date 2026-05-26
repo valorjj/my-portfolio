@@ -6,6 +6,8 @@ status:
   project-02: locked (v1)
   project-03: locked (v1)
   project-04: locked (v1)
+  project-05: draft (v1)
+  project-06: draft (v1)
 ---
 
 # Project 01 — KakaoTalk Chatbot for the National Unemployment-Benefits Service
@@ -180,3 +182,129 @@ Java, **Spring Boot**, **Spring WebFlux**, **RxJava** (with Reactor interop), Ja
 - **Sync as a first-class concern.** When two systems hold the same state, reconciliation needs both a scheduled mode and a manual force mode — and both must be idempotent and tenant-scoped.
 - **Cascading lifecycle across entity types.** A "valid until X" rule that has to propagate consistently across processes, private runners, role-groups, and licenses is much harder than per-entity TTL — it taught me to design the invalidation path before the creation path.
 - **Migrating from a still-live legacy system.** When the source keeps producing new rows during cutover, "one big migration" stops working — daily idempotent procedures that re-apply cleanly are the right shape.
+
+---
+
+# Project 05 — Smilegate Accounting Admin Portal (Clean-Architecture build)
+
+**Period:** Feb 2025 – May 2025 (~4 months) · **Role:** Developer · **Team:** _TBD_
+**Client:** **Smilegate** — company-wide internal admin portal.
+**Our scope:** the **accounting** module of that portal.
+**Stack:** **React (frontend) + Spring Boot (backend)**.
+
+### Context
+
+Smilegate was building a **company-wide internal admin portal**, and our team owned the **accounting** slice of it. The architectural brief was explicit: structure the codebase as **Clean Architecture** from day one so the system could be sliced into **microservices** later without a rewrite. The schedule was tight — roughly four months end-to-end — for a domain (accounting) where numbers have to be exactly right, not approximately right.
+
+### What I built
+
+- **Cross-tab numeric reconciliation.** Several accounting screens were composed of multiple tabs whose totals had to **match perfectly** — the same figure, reached through different derivations, displayed in different places. Getting every tab to converge on a single source-of-truth number — without one tab silently drifting from another under filtering, refresh, or partial reload — was the single most time-consuming correctness problem in the project.
+- **Polymorphic grid interactions.** A single grid component had to respond differently to clicks depending on which **column**, **header**, or **row** the user touched — different cells in the same grid triggered different actions, different selection rules, and different downstream flows. Encoding all of those behaviors in one component, without it collapsing into a `switch`-statement zoo, was a structural problem in its own right.
+- **Composed lifecycles: filter ↔ grid ↔ Zustand ↔ loader.** Filters, grid state, the Zustand store, and the data loader each had their own lifecycle, and they had to compose cleanly: a filter change had to invalidate the right slice of grid state and trigger the right loader sequence — without re-running everything or showing intermediate, inconsistent numbers along the way.
+- **Loader lifecycle.** Long-running, partially-dependent fetches needed a coordinated loader story — when to show what, when to cancel in flight, when one loader's result invalidated another's. Folding that into the Zustand model without leaking transient states into the UI was non-trivial.
+
+### Tech
+
+**React**, **Zustand** (state), **Spring Boot** (backend) — designed against **Clean Architecture** for a future **MSA migration**.
+
+### What I took away
+
+- **"Clean Architecture for a future MSA split" is a frontend constraint too, not just a backend one.** Boundaries between domain logic, view models, and the transport layer have to be drawn on the React side as well — otherwise the eventual service split forces a frontend rewrite.
+- **Numeric consistency across composed views is a system property, not a screen property.** Once the same figure is reachable through multiple tabs, "this tab is correct in isolation" stops being enough — the source of truth has to live above any single screen.
+- **A grid with polymorphic cell behavior needs an explicit interaction model.** Dispatching on `(column, header, row, cell-type)` through a defined contract is much more maintainable than one component branching internally on every special case.
+- **Composed lifecycles need explicit choreography.** When filter, grid, store, and loader each have their own lifecycle, the bugs live in the **transitions between them**, not inside any one of them — designing those transitions first saves the most time later.
+- **Tight schedule + regulated-feeling domain (accounting) + an architectural mandate (Clean Architecture for MSA-readiness)** is a real constraint triangle. The discipline of holding the architectural line under deadline pressure was a project-shaped lesson on its own.
+
+---
+
+# Project 06 — Hanwha Aerospace RPA Portal (broadest-scope project to date)
+
+**Period:** Sep 2025 – Mar 2026 (~7 months) · **Role:** Full-stack Developer · **Team:** 4 developers
+**Client:** **Hanwha Aerospace** — new internal RPA portal.
+**Stack:** **Svelte** (frontend) + **Kotlin / Spring Boot** (backend) + **Camunda BPM** — both the **engine** service and the **external-task worker** service.
+
+### Context
+
+The most recent, most labor-intensive, and broadest-scope project of my career so far. Built Hanwha Aerospace's new internal RPA portal on a Svelte + Kotlin/Spring Boot stack, with **Camunda** as the workflow engine — split into a dedicated **engine** service and a separate **external** worker service. Compared to my previous RPA work at Samsung (Projects 03 and 04), this one had me sit much further across the stack on a 4-person team: cross-cutting platform pieces (i18n, RBAC, audit, caching), the Svelte component layer, the CD pipeline, software-certification prep, and the end-user documentation — all mine.
+
+### What I built
+
+**1. In-house multi-language (i18n) library — no off-the-shelf i18n library used.**
+Built our own i18n library from scratch instead of adopting one of the standard libraries: message catalog format, lookup API, fallback semantics, and the integration on both the Kotlin and Svelte sides. Building it forced me to commit to the kinds of decisions an off-the-shelf library hides — when keys resolve, how missing keys behave in production, how catalogs are shipped to the client.
+
+**2. Unified caching layer (translations + common codes + per-user permissions).**
+A single backend caching layer that warms three different kinds of data per session: translations (consumed by the i18n library), common-code dictionaries (the enum-like values every internal portal needs), and the active user's **permission list**. The user's permission cache is then surfaced into Svelte too — every component that should be conditionally **disabled or hidden** for RBAC reasons reads from the same cached source instead of refetching or rederiving.
+
+**3. Annotation-based RBAC, end-to-end (backend + frontend).**
+A unified Spring annotation, `@RequiresIntegratedPermission`, that collapses two previously-separate concerns — **JWT-based RBAC** (feature + resource permissions) and **PAT (Personal Access Token) scope checking** — into a single declarative point. The same call site works under both auth modes:
+
+```kotlin
+@RequiresIntegratedPermission(["ui:connector_create"])
+@PostMapping
+override fun createConnector(@RequestBody request: ConnectorCreateRequestDto): ResponseEntity<Results> =
+    created { connectorService.createConnector(request) }
+```
+
+The annotation supports several composition patterns — a shared permission list checked under both modes, RBAC-only `features`/`resources`, and PAT-only `patScopes` — with AND/OR semantics on the combined list. The same permission vocabulary is then surfaced into Svelte via a shared composable, so a button or control declares its required permission once and the framework decides whether to render it disabled or hidden:
+
+```svelte
+const permissionState = usePermissionDisabled({
+  disabled: () => disabled,
+  permission: () => permission,
+  componentName: 'EcoletreeButton'
+});
+
+<Button.Root
+  class={buttonClass}
+  aria-label={ariaLabel}
+  disabled={permissionState.isDisabled}
+  {onclick}
+  {type}
+  bind:ref
+/>
+```
+
+The combined effect: a permission name lives in **one** vocabulary. The backend rejects unauthorized requests at the annotation, the frontend renders the correct affordance from the same cached permission list, and the two **cannot drift**.
+
+**4. Centralized, declarative audit-log system.**
+An `@AuditLog` annotation with rich SpEL expressions for capturing target IDs, target names, summary keys + args (translated through the same i18n system), and optionally the full response payload — so audit-logging an endpoint becomes a single decorator instead of a hand-rolled service call inside each handler.
+
+```kotlin
+@DeleteMapping("/sessions/{userId}/all")
+@AuditLog(
+    eventType = AuditEventType.ADMIN_FORCE_LOGOUT,
+    targetDomain = AuditTargetDomain.SESSION,
+    summaryKey = "audit.admin.force_logout_all",
+    summaryArgs = ["userId", "result.value.username", "result.value.revokedTokenCount"],
+    targetIdExpression = "#path['userId']",
+    targetNameExpression = "#result?.value?.username ?: 'User#' + #userId",
+    captureResponse = true,
+    handler = DefaultAuditHandler::class
+)
+fun forceLogoutAllUserSessions(@PathVariable userId: Long): ResponseEntity<Results> = ...
+```
+
+**5. Svelte component design — the design-system layer the rest of the team writes screens against.**
+Designed the overall Svelte component layer so the platform concerns (RBAC, i18n, audit) are wired into the building-block components themselves — screens consume `EcoletreeButton` and friends without having to know how permissions, translations, or audit logging work.
+
+**6. CD pipeline on GitHub Actions.**
+Set up the continuous-deployment pipeline that takes the project from merge to deploy.
+
+**7. GS Certification prep.**
+Drove the project's preparation for **GS인증** (Good Software certification, administered by TTA) — the evidence package, test artifacts, and certifier-required documentation.
+
+**8. The entire end-user manual.**
+Wrote the full user manual end-to-end.
+
+### Tech
+
+**Svelte** (frontend), **Kotlin / Spring Boot** (backend), **Camunda BPM** (engine + external-task worker services), Spring AOP + custom annotations (RBAC, PAT, audit log), GitHub Actions (CD), in-house i18n library, in-house caching layer, SpEL for declarative audit metadata.
+
+### What I took away
+
+- **Cross-cutting concerns belong in annotations.** RBAC, PAT scope checking, and audit-logging are all "every endpoint touches this" concerns — once pushed behind a declarative annotation, each handler stays focused on its own logic and the cross-cutting rules stay enforceable in one place rather than re-implemented per call site.
+- **Unifying two auth modes (JWT + PAT) behind one decorator** is much cleaner than asking every controller to know about both. The combinator lives in the annotation; the call site stays single-purpose.
+- **Sharing permission vocabulary across the frontend and backend** eliminates the most common class of RBAC bug — UI showing a control the backend rejects, or vice versa. Cached per-user permissions plus a shared permission name means a button knows it's disabled before the user can ever click it.
+- **Building an in-house i18n library instead of adopting one** is a real tradeoff: you trade "library does this for you" for "your fallback / resolution / loading semantics are exactly what you wanted." Worth it when constraints don't fit off-the-shelf, expensive otherwise — and the experience of *making* those decisions instead of inheriting them was itself the lesson.
+- **Camunda's engine + external-task split reshapes backend design.** Long-running, externally-orchestrated work has a different shape than request/response — and an engine + worker split forces those shapes to be explicit.
+- **Owning breadth (platform + UI + DevOps + cert + docs) is a different skill than owning depth.** This has been the largest stretch of scope I have taken on, and the most valuable thing I have learned has been how to keep all of those tracks moving without one falling behind the others.

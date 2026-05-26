@@ -310,4 +310,130 @@ END;`,
       '**Migrating from a still-live legacy system.** When the source keeps producing new rows during cutover, "one big migration" stops working — daily idempotent procedures that re-apply cleanly are the right shape.',
     ],
   },
+  {
+    index: '05',
+    title: 'Smilegate Accounting Admin Portal',
+    client: 'Smilegate — company-wide internal admin portal.',
+    product: 'The accounting module of that portal.',
+    period: 'Feb 2025 – May 2025 (~4 months)',
+    role: 'Developer',
+    team: 'TBD',
+    context:
+      "Smilegate was building a company-wide internal admin portal, and our team owned the accounting slice. The architectural brief was explicit: structure the codebase as Clean Architecture from day one so the system could be sliced into microservices later without a rewrite. The schedule was tight — roughly four months end-to-end — for a domain (accounting) where numbers have to be exactly right, not approximately right.",
+    highlights: [
+      {
+        title: 'Cross-tab numeric reconciliation.',
+        body: 'Several accounting screens were composed of multiple tabs whose totals had to match perfectly — the same figure, reached through different derivations, displayed in different places. Getting every tab to converge on a single source-of-truth number — without one tab silently drifting from another under filtering, refresh, or partial reload — was the single most time-consuming correctness problem in the project.',
+      },
+      {
+        title: 'Polymorphic grid interactions.',
+        body: 'A single grid component had to respond differently to clicks depending on which column, header, or row the user touched — different cells in the same grid triggered different actions, different selection rules, and different downstream flows. Encoding all of those behaviors in one component, without it collapsing into a `switch`-statement zoo, was a structural problem in its own right.',
+      },
+      {
+        title: 'Composed lifecycles: filter ↔ grid ↔ Zustand ↔ loader.',
+        body: 'Filters, grid state, the Zustand store, and the data loader each had their own lifecycle, and they had to compose cleanly: a filter change had to invalidate the right slice of grid state and trigger the right loader sequence — without re-running everything or showing intermediate, inconsistent numbers along the way.',
+      },
+      {
+        title: 'Loader lifecycle.',
+        body: "Long-running, partially-dependent fetches needed a coordinated loader story — when to show what, when to cancel in flight, when one loader's result invalidated another's. Folding that into the Zustand model without leaking transient states into the UI was non-trivial.",
+      },
+    ],
+    tech: ['React', 'Zustand', 'Spring Boot', 'Clean Architecture (MSA-ready)'],
+    takeaways: [
+      '**"Clean Architecture for a future MSA split" is a frontend constraint too, not just a backend one.** Boundaries between domain logic, view models, and the transport layer have to be drawn on the React side as well — otherwise the eventual service split forces a frontend rewrite.',
+      '**Numeric consistency across composed views is a system property, not a screen property.** Once the same figure is reachable through multiple tabs, "this tab is correct in isolation" stops being enough — the source of truth has to live above any single screen.',
+      '**A grid with polymorphic cell behavior needs an explicit interaction model.** Dispatching on `(column, header, row, cell-type)` through a defined contract is much more maintainable than one component branching internally on every special case.',
+      '**Composed lifecycles need explicit choreography.** When filter, grid, store, and loader each have their own lifecycle, the bugs live in the transitions between them, not inside any one of them — designing those transitions first saves the most time later.',
+    ],
+  },
+  {
+    index: '06',
+    title: 'Hanwha Aerospace RPA Portal',
+    client: 'Hanwha Aerospace — new internal RPA portal.',
+    period: 'Sep 2025 – Mar 2026 (~7 months)',
+    role: 'Full-stack Developer',
+    team: '4 developers',
+    context:
+      "The most labor-intensive and broadest-scope project of my career so far. Built Hanwha Aerospace's new internal RPA portal on a Svelte + Kotlin/Spring Boot stack, with Camunda as the workflow engine — split into a dedicated engine service and a separate external-task worker service. On a 4-person team I sat across the stack: cross-cutting platform pieces (i18n, RBAC, audit, caching), the Svelte component layer, the CD pipeline, software-certification prep, and the end-user documentation.",
+    diagram: `(Svelte frontend) → (Kotlin / Spring Boot portal)
+                            ↓
+                  (engine service)  ←→  (external-task workers)
+                            ↓
+                     (Camunda BPMN)`,
+    highlights: [
+      {
+        title: 'In-house multi-language (i18n) library.',
+        body: 'Built our own i18n library from scratch instead of adopting an off-the-shelf one — message catalog format, lookup API, fallback semantics, and the framework integration on both Kotlin and Svelte sides. Building it forced me to commit to the kinds of decisions an off-the-shelf library hides: when keys resolve, how missing keys behave in production, how catalogs ship to the client.',
+      },
+      {
+        title: 'Unified caching layer (translations + common codes + per-user permissions).',
+        body: "A single backend cache that warms three kinds of data per session: translations (consumed by the i18n library), common-code dictionaries, and the active user's permission list. The user's permission cache is then surfaced into Svelte too — every component that should be conditionally disabled or hidden for RBAC reasons reads from the same cached source instead of refetching or rederiving.",
+      },
+      {
+        title: 'Annotation-based RBAC, end-to-end (backend + frontend).',
+        body: 'A unified Spring annotation, `@RequiresIntegratedPermission`, that collapses JWT-based RBAC (feature + resource permissions) and PAT (Personal Access Token) scope checking into one declarative point. The same permission vocabulary is then surfaced into Svelte through a shared `usePermissionDisabled` composable — a button declares its required permission once and the framework decides whether to render it disabled or hidden. A permission name lives in one vocabulary; backend and frontend cannot drift.',
+      },
+      {
+        title: 'Centralized, declarative audit-log system.',
+        body: 'An `@AuditLog` annotation with rich SpEL expressions for capturing target IDs, target names, summary keys + args (translated through the same i18n system), and optionally the full response payload — so audit-logging an endpoint becomes a single decorator instead of a hand-rolled service call inside each handler.',
+      },
+      {
+        title: 'Svelte component design.',
+        body: 'Designed the overall Svelte component layer — the design-system building blocks the rest of the team writes screens against. Platform concerns (RBAC, i18n, audit) are wired into the components themselves, so screens consume them without having to know how permissions, translations, or audit logging work underneath.',
+      },
+      {
+        title: 'CD pipeline on GitHub Actions.',
+        body: 'Set up the continuous-deployment pipeline that takes the project from merge to deploy.',
+      },
+      {
+        title: 'GS Certification prep.',
+        body: "Drove the project's preparation for GS인증 (Good Software certification, administered by TTA) — assembling the evidence package, test artifacts, and certifier-required documentation.",
+      },
+      {
+        title: 'The entire end-user manual.',
+        body: 'Wrote the full user manual end-to-end.',
+      },
+    ],
+    tech: [
+      'Svelte',
+      'Kotlin / Spring Boot',
+      'Camunda BPM (engine + external-task workers)',
+      'Spring AOP + custom annotations',
+      'SpEL',
+      'GitHub Actions (CD)',
+      'In-house i18n library',
+      'In-house caching layer',
+    ],
+    snippet: {
+      language: 'kotlin',
+      caption:
+        'Declarative audit logging · SpEL captures path/result, summary keys route through the in-house i18n system',
+      code: `@DeleteMapping("/sessions/{userId}/all")
+@AuditLog(
+    eventType         = AuditEventType.ADMIN_FORCE_LOGOUT,
+    targetDomain      = AuditTargetDomain.SESSION,
+    summaryKey        = "audit.admin.force_logout_all",
+    summaryArgs       = ["userId", "result.value.username", "result.value.revokedTokenCount"],
+    targetIdExpression   = "#path['userId']",
+    targetNameExpression = "#result?.value?.username ?: 'User#' + #userId",
+    captureResponse   = true,
+    handler           = DefaultAuditHandler::class
+)
+fun forceLogoutAllUserSessions(@PathVariable userId: Long):
+    ResponseEntity<Results> = single {
+        tenantAdminAuthService.forceLogoutAllUserSessions(userId)
+    }
+
+// Companion: @RequiresIntegratedPermission(["ui:connector_create"])
+//            collapses JWT-RBAC + PAT scope checking into one annotation,
+//            and the same permission name is consumed on the Svelte side
+//            via usePermissionDisabled — BE and FE share one vocabulary.`,
+    },
+    takeaways: [
+      "**Cross-cutting concerns belong in annotations.** RBAC, PAT scope checking, and audit-logging are all \"every endpoint touches this\" concerns — once pushed behind a declarative annotation, each handler stays focused on its own logic and the cross-cutting rules stay enforceable in one place.",
+      '**Sharing permission vocabulary across the frontend and backend** eliminates the most common class of RBAC bug — UI showing a control the backend rejects, or vice versa. Cached per-user permissions plus a shared permission name means a button knows it is disabled before the user can ever click it.',
+      '**Building an in-house i18n library instead of adopting one** is a real tradeoff: you trade "library does this for you" for "your fallback / resolution / loading semantics are exactly what you wanted." Worth it when constraints do not fit off-the-shelf — and the experience of *making* those decisions instead of inheriting them was itself the lesson.',
+      "**Owning breadth (platform + UI + DevOps + cert + docs) is a different skill from owning depth.** This has been the largest stretch of scope I have taken on, and the most valuable thing I have learned has been how to keep all of those tracks moving without one falling behind the others.",
+    ],
+  },
 ];
